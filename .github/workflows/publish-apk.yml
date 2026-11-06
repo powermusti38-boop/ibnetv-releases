@@ -1,0 +1,55 @@
+name: Publish signed APK
+on:
+  push:
+    branches: [main]
+    paths: [release-manifest.json]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: apk-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate APK-only publication
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, re
+          data = json.loads(pathlib.Path("release-manifest.json").read_text())
+          version = data["version_name"]
+          code = data["version_code"]
+          source = data["source_commit"]
+          sha = data["sha256"]
+          assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version)
+          assert isinstance(code, int) and code > 2
+          assert re.fullmatch(r"[0-9a-f]{40}", source)
+          assert re.fullmatch(r"[0-9a-f]{64}", sha)
+          apk = pathlib.Path("ibnetv-" + version + ".apk")
+          assert hashlib.sha256(apk.read_bytes()).hexdigest() == sha
+          with open(os.environ["GITHUB_ENV"], "a") as out:
+              out.write("VERSION_NAME=" + version + "\nAPK_FILE=" + str(apk) + "\n")
+          notes = (
+              "ibnetv " + version + " – vollständige Touchbedienung\n\n"
+              "- Tippen und Langdruck in TV-Karten, Listen, Filtern und Suche.\n"
+              "- Scrollbare Katalogspalten und Startseite für schmale Displays.\n"
+              "- Touch-Tasten für Wiedergabe, Spulen, Tonspur, Lautstärke und Zurück.\n\n"
+              "Android versionCode: " + str(code) + "\n"
+              "Source branch: mit_touch\nSource commit: " + source + "\n"
+              "APK SHA-256: " + sha + "\n"
+          )
+          pathlib.Path("release-notes.txt").write_text(notes)
+          PY
+      - name: Publish exactly one signed APK
+        run: |
+          if gh release view "v$VERSION_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite"; exit 1
+          fi
+          gh release create "v$VERSION_NAME" "$APK_FILE" --repo "$GITHUB_REPOSITORY" --title "ibnetv $VERSION_NAME – Touch" --notes-file release-notes.txt --latest
