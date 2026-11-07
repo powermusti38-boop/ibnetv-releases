@@ -1,0 +1,41 @@
+name: Publish GB Helfer APK
+on:
+  push:
+    branches: [main]
+    paths: ['gb-helfer/latest.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gb-helfer-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate GB Helfer binary
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,re
+          m=json.loads(pathlib.Path('gb-helfer/latest.json').read_text())
+          v=m['versionName']
+          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+',v)
+          assert isinstance(m['versionCode'],int) and m['versionCode']>=9
+          apk=pathlib.Path('gb-helfer')/('GB-Helfer-'+v+'.apk')
+          assert hashlib.sha256(apk.read_bytes()).hexdigest()==m['sha256']
+          assert m['apkUrl']=='https://raw.githubusercontent.com/powermusti38-boop/ibnetv-releases/main/'+str(apk)
+          with open(os.environ['GITHUB_ENV'],'a') as out: out.write('GB_VERSION='+v+'\nGB_APK='+str(apk)+'\n')
+          pathlib.Path('gb-helfer/SHA256SUMS.txt').write_text(m['sha256']+'  '+apk.name+'\n')
+          PY
+      - name: Publish APK release
+        run: |
+          if gh release view "gb-helfer-v$GB_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release already exists; not overwriting'; exit 0
+          fi
+          gh release create "gb-helfer-v$GB_VERSION" "$GB_APK" gb-helfer/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "GB Helfer $GB_VERSION" --notes 'Makros aufnehmen, auswählen und alle zehn Minuten wiedergeben. Bedienungshilfe-Verbindung und Hintergrundbetrieb überarbeitet. Makros bleiben lokal. APK über bestehende Installation installieren; danach das gewünschte Makro wählen und den Zeitplan einschalten.' --latest=false
