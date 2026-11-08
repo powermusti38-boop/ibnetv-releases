@@ -2,8 +2,12 @@
 
 Öffentliche, signierte APK-Dateien. Quellcode und Signierschlüssel bleiben privat.
 
-0.8.0: Überwachte Gestenrückmeldungen statt dauerhaftem Hängenbleiben, sichtbarer Warte-Countdown und kontrollierte App-Rückholung. Bunte Makroleiste mit Drag-Kopfzeile und einklappbaren Tasten, Touchschutz und Fertig-/Fehlerbenachrichtigung. Manuelle und zeitgesteuerte Wiedergabe werden durch den sichtbaren Hintergrunddienst begleitet.
+0.8.1: Nach dem Speichern einer Aufnahme und nach beendeter Wiedergabe öffnet GB Helfer die Android-App-Info des Zielpakets, betätigt die passende Schaltfläche „Stopp erzwingen“/„Beenden erzwingen“ oder „Force stop“ und bestätigt nur den zugehörigen Systemdialog. Anschließend wird der Android-Paketstatus FLAG_STOPPED kontrolliert. Eine verbliebene, eindeutig erkannte Zieltaskkarte wird gezielt aus „Letzte Apps“ entfernt. Keine Root-/ADB-Rechte; keine Datenlöschung oder Deinstallation.
 
-GB Helfer bleibt selbst im Hintergrund; die ALDI-/Ziel-App muss für die Bildschirm-Eingaben kurz sichtbar sein. Nach Abschluss wird ihr Task wie bisher gezielt entfernt und die vorherige App zurückgeholt. Benachrichtigungen für GB Helfer erlauben. Eine im engen Gestenbereich vorübergehend nötige Freigabe verhindert eine absolute Fingersperre während tatsächlicher Koordinatengesten. Unbestätigte Eingaben werden nicht blind wiederholt.
+Danach wird die vorherige App über ihre vorhandene Aufgabe fortgesetzt, soweit kein manueller App-Wechsel oder Sperrbildschirm dazwischenkommt. GB Helfer und der eingeschaltete Zehn-Minuten-Zeitplan bleiben im Hintergrund aktiv. Beim nächsten geplanten Start öffnet sich die Ziel-App wieder regulär.
 
-Ab 0.7.0 über „Nach Updates suchen“ installierbar. Vorhandene Makros bleiben kompatibel. 60 Unit-Tests und Android Lint bestanden; Poco-/LDPlayer-Gerätetest steht aus.
+Eine Benachrichtigung nennt App-Stopp und Taskprüfung getrennt. Bei nicht bestätigtem Stopp oder nicht bestätigter Taskentfernung erscheint „App-Abschluss prüfen“. Android-/Hersteller-Oberflächen müssen ihre passenden Bedienelemente über die Bedienungshilfe bereitstellen; die Erkennung arbeitet ohne Koordinatenklicks in Einstellungen. Wenn bereits keine Zielkarte mehr erkennbar ist, wird die vollständige Taskentfernung nicht behauptet. Benachrichtigungen für GB Helfer erlauben.
+
+Ab 0.7.0 über „Nach Updates suchen“ installierbar. Vorhandene Makros und Signierschlüssel bleiben kompatibel. 72 Unit-Tests und Android Lint bestanden; Poco-/LDPlayer-Gerätetest steht aus.
+
+Aus 0.8.0: überwachte Wiedergabe mit Zeitlimits, Warte-Countdown, kontrollierter App-Rückholung, Touchschutz und bunter verschiebbarer/einklappbarer Makroleiste. Für Bildschirm-Eingaben muss die Ziel-App sichtbar sein. Während Koordinatengesten ist eine kurze Freigabe im engen Gestenbereich nötig.
