@@ -38,4 +38,4 @@ jobs:
           if gh release view "gb-helfer-v$GB_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo 'Release already exists; not overwriting'; exit 0
           fi
-          gh release create "gb-helfer-v$GB_VERSION" "$GB_APK" gb-helfer/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "GB Helfer $GB_VERSION" --notes 'Makros aufnehmen, auswählen und alle zehn Minuten wiedergeben. Bedienungshilfe-Verbindung und Hintergrundbetrieb überarbeitet. Makros bleiben lokal. APK über bestehende Installation installieren; danach das gewünschte Makro wählen und den Zeitplan einschalten.' --latest=false
+          gh release create "gb-helfer-v$GB_VERSION" "$GB_APK" gb-helfer/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "GB Helfer $GB_VERSION" --notes 'Nach Aufnahme speichern und nach fertiger Wiedergabe kehrt GB Helfer zur vorherigen App zurück und bleibt selbst im Hintergrund. Eine laufende Geste wird vor dem Wechsel beendet. Bestehende Makros und der Zehn-Minuten-Zeitplan bleiben erhalten. Version 0.7.0 kann über den Update-Button aktualisieren.' --latest=false
